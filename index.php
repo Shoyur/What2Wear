@@ -1,5 +1,5 @@
 <?php
-$api_url = 'http://localhost/Portfolio/What2Wear/server/tempController.php';
+$api_url = 'http://s974927839.online-home.ca/What2Wear/server/tempController.php';
 $ch = curl_init($api_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
