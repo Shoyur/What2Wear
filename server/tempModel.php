@@ -1,6 +1,6 @@
 <?php 
 
-require_once '../config/db.php';
+require_once 'db.php';
 
 date_default_timezone_set('US/Eastern');
 
@@ -80,7 +80,7 @@ class OrderModel {
     }
 
     // READ
-    public function getOpenOrders() {
+    public function getLastTemp() {
 
         try {
 
@@ -142,79 +142,6 @@ class OrderModel {
 
         }
 
-    }
-
-    // UPDATE
-    public function updateOrder($order_id, $order_finished) {
-
-        try {
-
-            $return = array();
-
-            // if order state = 1, set finished time
-            if ($order_finished == 1) {
-
-                $order_date_finished = (new DateTime())->format('Y-m-d H:i:s');
-
-                $query = "UPDATE `order` SET order_finished = ?, order_date_finished = ? WHERE order_id = ?";
-                $stmt = $this->db->prepare($query);
-                $stmt->execute([$order_finished, $order_date_finished, $order_id]);
-                
-            }
-
-            else {
-
-                $query = "UPDATE `order` SET order_finished = ? WHERE order_id = ?";
-                $stmt = $this->db->prepare($query);
-                $stmt->execute([$order_finished, $order_id]);
-
-            }
-
-            
-
-            array_push($return, true);
-            array_push($return, $order_id);
-
-        } 
-        catch (PDOException $e) {
-
-            array_push($return, false);
-            array_push($return, $e);
-
-        }
-        finally {
-
-            return $return;
-
-        }
-
-    }
-
-    public function archiveOrders() {
-        try {
-
-            $return = array();
-
-            $query = "UPDATE `order` SET order_finished = 2 WHERE order_finished = 1";
-            $stmt = $this->db->query($query);
-            $stmt->execute();
-            $result = $stmt->rowCount();
-
-            array_push($return, true);
-            array_push($return, $result);
-
-        } 
-        catch (PDOException $e) {
-
-            array_push($return, false);
-            array_push($return, $e);
-
-        }
-        finally {
-
-            return $return;
-
-        }
     }
 
 }

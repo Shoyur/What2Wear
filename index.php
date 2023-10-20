@@ -1,9 +1,19 @@
 <?php
+
 $api_url = 'http://s974927839.online-home.ca/What2Wear/server/tempController.php';
+
 $ch = curl_init($api_url);
+
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
 $response = curl_exec($ch);
-if ($response[0]) {
+
+$delay = "???";
+$temp = "???";
+$height_red = 0;
+$height_temp = 0;
+
+if ($response[0] === true) {
     $data = json_decode($response, true);
     if ($data[0]) {
         $delay = $data[1];
@@ -11,15 +21,13 @@ if ($response[0]) {
         $height_red = $data[3];
         $height_temp = $data[4];
     }
-    else {
-        $delay = "???";
-        $temp = "???";
-        $height_red = 0;
-        $height_temp = 0;
-        
-    }
 }
+else {
+    $temp = $response[0];
+}
+
 curl_close($ch);
+
 ?>
 
 
