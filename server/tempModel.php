@@ -80,19 +80,15 @@ class OrderModel {
     }
 
     // READ
-    public function getLastTemp() {
+    public function getTemp() {
 
         try {
 
             $return = array();
 
-            $query = "SELECT a.*, b.*, c.* FROM `order` AS a 
-                JOIN foodbyorder AS b ON a.order_id = b.order_id 
-                JOIN food AS c ON b.food_id = c.food_id 
-                WHERE a.order_finished = 0 
-                ORDER BY a.order_id";
+            $query = "SELECT * FROM `temp1` ORDER BY `temp1_id` DESC LIMIT 1";
             $stmt = $this->db->query($query);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             array_push($return, true);
             array_push($return, $result);
@@ -112,37 +108,33 @@ class OrderModel {
 
     }
 
-    public function getFinishedOrders() {
+    // public function getTemp () {
 
-        try {
+    //     try {
 
-            $return = array();
+    //         $return = array();
 
-            $query = "SELECT a.*, b.*, c.* FROM `order` AS a 
-                JOIN foodbyorder AS b ON a.order_id = b.order_id 
-                JOIN food AS c ON b.food_id = c.food_id 
-                WHERE a.order_finished = 1 
-                ORDER BY a.order_date_finished";
-            $stmt = $this->db->query($query);
-            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //         $query = "SELECT * FROM `temp1`";
+    //         $stmt = $this->db->query($query);
+    //         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            array_push($return, true);
-            array_push($return, $result);
+    //         array_push($return, true);
+    //         array_push($return, $result);
 
-        } 
-        catch (PDOException $e) {
+    //     } 
+    //     catch (PDOException $e) {
 
-            array_push($return, false);
-            array_push($return, $e);
+    //         array_push($return, false);
+    //         array_push($return, $e);
 
-        }
-        finally {
+    //     }
+    //     finally {
 
-            return $return;
+    //         return $return;
 
-        }
+    //     }
 
-    }
+    // }
 
 }
 

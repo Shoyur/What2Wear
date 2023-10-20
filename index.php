@@ -10,6 +10,7 @@ $response = curl_exec($ch);
 
 $data = json_decode($response, true);
 
+$error = "";
 $delay = "???";
 $temp = "???";
 $height_red = 0;
@@ -22,10 +23,10 @@ if ($data[0] === true) {
     $height_temp = $data[4];
 }
 elseif ($data[0] === false) {
-    $temp = $response[1];
+    $error = $response[1];
 }
 else {
-    $temp = "No valid answer from the server";
+    $error = "No valid answer from the server.";
 }
 
 curl_close($ch);
@@ -153,7 +154,7 @@ curl_close($ch);
 <body>
     <section class="container">
         <h4 class="text">
-            <span class="error">TEST</span><br>
+            <span class="error"><?php echo $error;?></span><br>
             <span class="boxed-text">ESP32</span> → <?php echo $delay;?> sec ago → 
             <span class="boxed-text">server</span> → now → 
             <span class="boxed-text">you</span>
