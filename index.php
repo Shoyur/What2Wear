@@ -39,7 +39,7 @@ curl_close($ch);
         body {
             height: 100vh;
             width: 100vw;
-            background-color: #222222;
+            background-color: #333333;
             font-family: 'Roboto';
         }
         .container {
