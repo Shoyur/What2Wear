@@ -8,22 +8,24 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 $response = curl_exec($ch);
 
+$data = json_decode($response, true);
+
 $delay = "???";
 $temp = "???";
 $height_red = 0;
 $height_temp = 0;
 
-if ($response[0] === true) {
-    $data = json_decode($response, true);
-    if ($data[0]) {
-        $delay = $data[1];
-        $temp = $data[2];
-        $height_red = $data[3];
-        $height_temp = $data[4];
-    }
+if ($data[0] === true) {
+    $delay = $data[1];
+    $temp = $data[2];
+    $height_red = $data[3];
+    $height_temp = $data[4];
+}
+elseif ($data[0] === false) {
+    $temp = $response[1];
 }
 else {
-    $temp = $response[0];
+    $temp = "No valid answer from the server";
 }
 
 curl_close($ch);
@@ -56,6 +58,12 @@ curl_close($ch);
             align-items: center;
             justify-content: center;
             flex-direction: column;
+        }
+        .error {
+            color: #DD1100;
+            position: fixed;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         .text {
             margin-bottom: 30px;
@@ -145,6 +153,7 @@ curl_close($ch);
 <body>
     <section class="container">
         <h4 class="text">
+            <span class="error">TEST</span><br>
             <span class="boxed-text">ESP32</span> → <?php echo $delay;?> sec ago → 
             <span class="boxed-text">server</span> → now → 
             <span class="boxed-text">you</span>
