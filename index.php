@@ -1,29 +1,38 @@
 <?php
 
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+
 $api_url = 'http://s974927839.online-home.ca/What2Wear/server/tempController.php';
-
 $ch = curl_init($api_url);
-
+curl_setopt($ch, CURLOPT_HTTPGET, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
 
 $response = curl_exec($ch);
+
+if (curl_errno($ch)) {
+    echo 'cURL Error: ' . curl_error($ch);
+}
+// $http_status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+// echo 'HTTP Response Code: ' . $http_status_code . '<br>';
 
 $data = json_decode($response, true);
 
 $error = "";
 $delay = "???";
-$temp = "???";
+$temp = 0;
 $height_red = 0;
 $height_temp = 0;
 
-if ($data[0] === true) {
+if ($data[0] == true) {
     $delay = $data[1];
     $temp = $data[2];
     $height_red = $data[3];
     $height_temp = $data[4];
 }
-elseif ($data[0] === false) {
-    $error = $response[1];
+elseif ($data[0] == false) {
+    $error = $data[1];
 }
 else {
     $error = "No valid answer from the server.";
