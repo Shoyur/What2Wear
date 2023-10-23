@@ -9,6 +9,10 @@ class TempController {
     // CRUD
 
     // CREATE
+    public function postTemp($temp) {
+        $tempModel = new TempModel();
+        $tempModel->postTemp($temp);
+    }
 
     // READ
     public function getTemp() {
@@ -56,27 +60,17 @@ class TempController {
         return json_encode($return);
     }
 
-    // UPDATE
-    // public function updateTemp($temp) {
-
-    //     $tempModel = new TempModel();
-    //     $result = $tempModel->updateTemp($temp);
-        
-    //     header('Content-Type: application/json');
-    //     return json_encode($result);
-
-    // }
-
 }
 
 $tempController = new TempController();
 
 switch ($_SERVER['REQUEST_METHOD']) {
 
-    // case 'POST': {
-    //     echo $tempController->postTemp();
-    //     break;
-    // }
+    case 'POST': {
+        $temp = isset($_POST['temp']) ? floatval($_POST['temp']) : 0;
+        echo $tempController->postTemp($temp);
+        break;
+    }
     case 'GET': {
         echo $tempController->getTemp();
         break;
