@@ -164,7 +164,7 @@ curl_close($ch);
     <section class="container">
         <h4 class="text">
             <span class="error"><?php echo $error;?></span><br>
-            <span class="boxed-text">ESP32</span> → <?php echo $delay;?> sec ago → 
+            <span class="boxed-text">ESP32</span> → <?php echo $delay;?> ago → 
             <span class="boxed-text">server</span> → now → 
             <span class="boxed-text">you</span>
         </h4>

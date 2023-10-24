@@ -28,7 +28,14 @@ class TempController {
 
             // delay
             $delay = time() - strtotime($result[1]['temp1_time']);
-            array_push($return, $delay);
+            $hours = floor($delay / 3600);
+            $minutes = floor(($delay % 3600) / 60);
+            $seconds = $delay % 60;
+            $delay_string = '';
+            if ($hours > 0) { $delay_string .= $hours . ' hour '; }
+            if ($minutes > 0) { $delay_string .= $minutes . ' min '; }
+            $delay_string .= $seconds . ' sec';
+            array_push($return, $delay_string);
 
             // temp
             $temp = $result[1]['temp1_value'];
@@ -45,10 +52,6 @@ class TempController {
             // $height_temp = ($height_red / 100) * (100 - 8); // % mapped on 8% to 100%
             $height_temp = ceil($height_temp);
             array_push($return, $height_temp);
-
-            // echo "here var_dump return =<br>";
-            // var_dump($return);
-            // echo "<br>";
 
         }
         else {

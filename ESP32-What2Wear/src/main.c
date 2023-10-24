@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "esp_http_client.h"
 
+#include "esp_http_client.h"
 #include "freertos/FreeRTOS.h" // for delay,mutexs,semphrs rtos operations
 #include "esp_system.h" // esp_init funtions esp_err_t 
 #include "esp_wifi.h" // esp_wifi_init functions and wifi operations
@@ -14,30 +14,31 @@
 
 #include "driver/adc.h"
 
+#include "ssid-pass.h"
 
-const char *ssid = "Hors_Service_2";
-const char *pass = "motdepasse";
+
 int retry_num = 0;
+float temp = 0;
 
 static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id,void *event_data) {
     
     if (event_id == WIFI_EVENT_STA_START) { 
-        printf("WIFI CONNECTING....\n");
+        printf("WiFi connecting...\n");
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
     else if (event_id == WIFI_EVENT_STA_CONNECTED) { 
-        printf("WiFi CONNECTED\n"); 
+        printf("WiFi connected!\n"); 
     }
     else if (event_id == WIFI_EVENT_STA_DISCONNECTED) { 
-        printf("WiFi lost connection\n");
+        printf("WiFi lost connection.\n");
         if (retry_num < 5) { 
             esp_wifi_connect();
             retry_num++;
-            printf("Retrying to Connect...\n");
+            printf("Retrying to connect...\n");
         }
     }
     else if (event_id == IP_EVENT_STA_GOT_IP) {
-        printf("Wifi got IP...\n\n");
+        printf("WiFi got IP!\n\n");
     }
 }
 
@@ -64,51 +65,51 @@ void wifi_connection(){
     printf( "wifi_init_softap finished. SSID: %s password: %s\n", ssid, pass);
 }
 
-void app_main() {
-
-
-    nvs_flash_init(); // this is important in wifi case to store configurations , code will not work if this is not added
-    wifi_connection();
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-    // Configure the URL and HTTP client
-    esp_http_client_config_t config = {
-        .url = "http://s974927839.online-home.ca/What2Wear/server/tempController.php",
-        .event_handler = ESP_OK,
-    };
-
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-
-    esp_http_client_set_method(client, HTTP_METHOD_POST);
-
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
-    unsigned short adc_value_ch0 = 0;
-    float temp = 0;
-    
+void temperature_read_task(void *pvParameters) {
     while (1) {
-
+        adc1_config_width(ADC_WIDTH_BIT_12);
+        adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_11);
+        unsigned short adc_value_ch0 = 0;
         adc_value_ch0 = adc1_get_raw(ADC1_CHANNEL_0);
-        // printf("\nadc_value_ch0 = %d ", adc_value_ch0);
-        temp = (adc_value_ch0 * 3.3) / 4095.0; // ? volts / 3.3
-        // printf(" (adc_value_ch0 * 3.3) / 4095.0 = ?volts/3.3 = %f ", temp);
-        temp = temp / 0.01; // ? Kelvins
-        // printf(" ?Kelvins = %f ", temp);
-        temp -= 273.15; // to C
-        // printf(" -273.15 = %f°C\n\n", temp);
-        
-        // Convert the float to a string
+
+        temp = (adc_value_ch0 * 3.3) / 4095.0;
+        temp = temp / 0.01;
+        temp -= 273.15;
+
+        printf("temp = %f\n", temp);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+void temperature_post_task(void *pvParameters) {
+    while (1) {
         char temp_str[50];
         snprintf(temp_str, sizeof(temp_str), "%.1f", temp);
-        // Create the post_data string
         char post_data[55];
         snprintf(post_data, sizeof(post_data), "temp=%s", temp_str);
 
+        esp_http_client_config_t config = {
+            .url = "http://s974927839.online-home.ca/What2Wear/server/tempController.php",
+            .event_handler = ESP_OK,
+        };
+        esp_http_client_handle_t client = esp_http_client_init(&config);
+        esp_http_client_set_method(client, HTTP_METHOD_POST);
         esp_http_client_set_post_field(client, post_data, strlen(post_data));
         esp_http_client_perform(client);
         esp_http_client_cleanup(client);
 
-        vTaskDelay(10 * 60 * configTICK_RATE_HZ / 1000);
+        printf("temperature post to server\n");
+        vTaskDelay((1000 * 60 * 10) / portTICK_PERIOD_MS); // 10 min
     }
+}
+
+void app_main() {
+
+    nvs_flash_init();
+    wifi_connection();
+
+    xTaskCreate(&temperature_read_task, "temperature_read_task", configMINIMAL_STACK_SIZE * 4, NULL, 5, NULL);
+    xTaskCreate(&temperature_post_task, "temperature_post_task", configMINIMAL_STACK_SIZE * 4, NULL, 4, NULL);
+    // vTaskStartScheduler();
+
 }
