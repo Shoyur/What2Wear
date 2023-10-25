@@ -99,7 +99,8 @@ void temperature_post_task(void *pvParameters) {
         esp_http_client_cleanup(client);
 
         printf("temperature post to server\n");
-        vTaskDelay((1000 * 60 * 10) / portTICK_PERIOD_MS); // 10 min
+        // vTaskDelay((1000 * 60 * 10) / portTICK_PERIOD_MS); // 10 min
+        vTaskDelay((1000 * 10) / portTICK_PERIOD_MS); // 10 sec
     }
 }
 
